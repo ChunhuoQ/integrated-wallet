@@ -1,11 +1,17 @@
-package com.ruoyi.common.utils;
+package com.ruoyi.framework.util;
 
 import com.ruoyi.common.config.EmailConfig;
 import com.ruoyi.common.core.ApplicationContext;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.annotation.PostConstruct;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -18,18 +24,30 @@ import java.util.Properties;
 /**
  * 邮件发送工具类
  */
+@Slf4j
+@Component
 public class EmailUtils {
 
-    static String mailSmtpHost;
-    static String mailSmtpPort;
-    static String mailSmtpUsername;
-    static String mailSmtpPassword;
-    static {
-        EmailConfig config = ApplicationContext.getInstance().getBean(EmailConfig.class);
-        mailSmtpHost = config.getMailSmtpHost();
-        mailSmtpPort = config.getMailSmtpPort();
-        mailSmtpUsername = config.getMailSmtpUsername();
-        mailSmtpPassword = config.getMailSmtpPassword();
+    @Value("${mail.smtp.host}")
+    private String mailSmtpHost;
+    @Value("${mail.smtp.port}")
+    private String mailSmtpPort;
+    @Value("${mail.smtp.username}")
+    private String mailSmtpUsername;
+    @Value("${mail.smtp.password}")
+    private String mailSmtpPassword;
+
+    private static String staticMailSmtpHost;
+    private static String staticMailSmtpPort;
+    private static String staticMailSmtpUsername;
+    private static String staticMailSmtpPassword;
+
+    @PostConstruct
+    public void init() {
+        staticMailSmtpHost = this.mailSmtpHost;
+        staticMailSmtpPort = this.mailSmtpPort;
+        staticMailSmtpUsername = this.mailSmtpUsername;
+        staticMailSmtpPassword = this.mailSmtpPassword;
     }
 
     /**
@@ -42,18 +60,18 @@ public class EmailUtils {
     private static void sendEmailWithAttachment(String recipientEmail, String subject, File file, String fileName) {
         Properties props = new Properties();
         // Add your email configuration (e.g., host, port, authentication details)
-        props.put("mail.smtp.host", mailSmtpHost);
-        props.put("mail.smtp.socketFactory.port", mailSmtpPort);
+        props.put("mail.smtp.host", staticMailSmtpHost);
+        props.put("mail.smtp.socketFactory.port", staticMailSmtpPort);
         props.put("mail.smtp.auth", "true");
         Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailSmtpUsername, mailSmtpPassword);
+                return new PasswordAuthentication(staticMailSmtpUsername, staticMailSmtpPassword);
             }
         });
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(mailSmtpUsername));
+            message.setFrom(new InternetAddress(staticMailSmtpUsername));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject(subject);
             MimeBodyPart messageBodyPart = new MimeBodyPart();
@@ -80,21 +98,21 @@ public class EmailUtils {
      * @param subject 邮件主题
      * @param body 邮件正文
      */
-    private static void sendSimpleEmail(String recipientEmail, String subject, String body) {
+    public static void sendSimpleEmail(String recipientEmail, String subject, String body) {
         Properties props = new Properties();
         // 添加邮件配置（例如主机，端口，身份验证等）
-        props.put("mail.smtp.host", mailSmtpHost);
-        props.put("mail.smtp.socketFactory.port", mailSmtpPort);
+        props.put("mail.smtp.host", staticMailSmtpHost);
+        props.put("mail.smtp.socketFactory.port", staticMailSmtpPort);
         props.put("mail.smtp.auth", "true");
         Session session = Session.getDefaultInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(mailSmtpUsername, mailSmtpPassword);
+                return new PasswordAuthentication(staticMailSmtpUsername, staticMailSmtpPassword);
             }
         });
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(mailSmtpUsername));
+            message.setFrom(new InternetAddress(staticMailSmtpUsername));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject(subject);
 
@@ -107,6 +125,8 @@ public class EmailUtils {
             throw new RuntimeException(e);
         }
     }
+
+
 
 
 }

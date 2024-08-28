@@ -26,6 +26,7 @@ public interface ISysConfigService
      */
     public String selectConfigByKey(String configKey);
 
+
     /**
      * 获取验证码开关
      * 

@@ -25,6 +25,13 @@ public class SysRegisterController extends BaseController
     @Autowired
     private ISysConfigService configService;
 
+
+    /**
+     * 设置密码并注册
+     * @param user
+     * @return
+     */
+
     @PostMapping("/register")
     public AjaxResult register(@RequestBody RegisterBody user)
     {
@@ -35,4 +42,37 @@ public class SysRegisterController extends BaseController
         String msg = registerService.register(user);
         return StringUtils.isEmpty(msg) ? success() : error(msg);
     }
+
+    /**
+     * 发送注册验证码到邮箱
+     * @param user
+     * @return
+     */
+    @PostMapping("/send/email/register")
+    public AjaxResult registerSendEmail(@RequestBody RegisterBody user)
+    {
+        if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser"))))
+        {
+            return error("当前系统没有开启注册功能！");
+        }
+        String msg = registerService.registerSendEmail(user);
+        return StringUtils.isEmpty(msg) ? success() : error(msg);
+    }
+
+    /**
+     * 验证码验证
+     * @param user
+     * @return
+     */
+    @PostMapping("/validate/code")
+    public AjaxResult validateCode(@RequestBody RegisterBody user)
+    {
+        if (!("true".equals(configService.selectConfigByKey("sys.account.registerUser"))))
+        {
+            return error("当前系统没有开启注册功能！");
+        }
+        String msg = registerService.validateCode(user.getUsername(),user.getCode());
+        return StringUtils.isEmpty(msg) ? success() : error(msg);
+    }
+
 }
