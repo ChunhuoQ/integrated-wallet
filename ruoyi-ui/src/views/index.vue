@@ -66,6 +66,30 @@
             >访问主页</el-button
           >
         </p>
+        <el-card class="github-app-card" shadow="never">
+          <div slot="header" class="clearfix">
+            <span>GitHub App 管理</span>
+          </div>
+          <p class="github-app-desc">
+            已安装后如需取消授权，可通过 GitHub App 设置页进行卸载。
+          </p>
+          <el-button
+            type="primary"
+            size="mini"
+            icon="el-icon-plus"
+            plain
+            @click="goTarget(githubAppInstallUrl)"
+            >安装 GitHub App</el-button
+          >
+          <el-button
+            type="danger"
+            size="mini"
+            icon="el-icon-delete"
+            plain
+            @click="goTarget(githubAppUninstallUrl)"
+            >卸载 GitHub App</el-button
+          >
+        </el-card>
       </el-col>
 
       <el-col :sm="24" :lg="12" style="padding-left: 50px">
@@ -1020,7 +1044,9 @@ export default {
   data() {
     return {
       // 版本号
-      version: "3.8.8"
+      version: "3.8.8",
+      githubAppInstallUrl: "https://github.com/apps/integrated-wallet/installations/new",
+      githubAppUninstallUrl: "https://github.com/settings/installations"
     };
   },
   methods: {
@@ -1078,6 +1104,15 @@ export default {
 
     b {
       font-weight: 700;
+    }
+  }
+
+  .github-app-card {
+    margin-top: 16px;
+
+    .github-app-desc {
+      color: #606266;
+      font-size: 13px;
     }
   }
 
